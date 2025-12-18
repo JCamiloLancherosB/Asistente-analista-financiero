@@ -1,0 +1,28 @@
+.file-upload {
+  margin: 10px 0;
+}
+
+.upload-label {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.upload-label:hover {
+  background-color: #45a049;
+}
+
+.upload-label:active {
+  background-color: #3d8b40;
+}
+
+.upload-error {
+  margin-top: 8px;
+  color: #d32f2f;
+  font-size: 13px;
+}
