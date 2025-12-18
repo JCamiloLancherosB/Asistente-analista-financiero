@@ -45,7 +45,9 @@ class TechauraClient:
         else:
             logger.info(f"Techaura client initialized for company {self.company_id}")
 
-    def _make_request(self, endpoint: str, method: str = "GET", data: dict = None) -> Dict:
+    def _make_request(
+        self, endpoint: str, method: str = "GET", data: Optional[dict] = None
+    ) -> Dict:
         """
         Make HTTP request to Techaura API.
 

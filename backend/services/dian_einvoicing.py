@@ -22,7 +22,7 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from backend.models.dian_schemas import (
@@ -377,7 +377,7 @@ class DIANEInvoicingService:
             xml_url=None,
         )
 
-    def validar_factura(self, factura: FacturaElectronica) -> Dict[str, any]:
+    def validar_factura(self, factura: FacturaElectronica) -> Dict[str, Any]:
         """
         Validate invoice data before submission.
 
