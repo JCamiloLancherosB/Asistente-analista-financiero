@@ -1,5 +1,7 @@
 """Configuration module for the financial assistant application."""
 
+from typing import Optional
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -26,6 +28,26 @@ class Settings(BaseSettings):
     default_temperature: float = Field(default=0.7, description="Default temperature")
     max_output_tokens: int = Field(default=2048, description="Max output tokens")
 
+    # DIAN E-Invoicing Configuration
+    e_invoice_provider: str = Field(
+        default="stub", description="E-invoice provider: stub, dian_api, pac_provider"
+    )
+    e_invoice_api_key: Optional[str] = Field(None, description="E-invoice provider API key")
+    e_invoice_api_url: Optional[str] = Field(None, description="E-invoice provider API URL")
+    e_invoice_cert_path: Optional[str] = Field(None, description="Path to e-invoice certificate")
+    e_invoice_cert_password: Optional[str] = Field(None, description="Certificate password")
+    e_invoice_nit_emisor: Optional[str] = Field(None, description="NIT of the invoice issuer")
+    e_invoice_storage_dir: str = Field(
+        default="/tmp/einvoices", description="Directory for storing invoice XML/PDF files"
+    )
+
+    # Techaura Sales Sync Configuration
+    techaura_api_key: Optional[str] = Field(None, description="Techaura API key")
+    techaura_api_url: Optional[str] = Field(None, description="Techaura API base URL")
+    techaura_company_id: Optional[str] = Field(None, description="Techaura company ID")
+
 
 # Global settings instance
-settings = Settings()
+# Note: Pydantic Settings loads values from environment at runtime,
+# so mypy can't verify the required arguments at type-check time
+settings = Settings()  # type: ignore[call-arg]

@@ -75,7 +75,7 @@ async def upload_csv(file: UploadFile = File(...)) -> UploadResponse:
         Summary of uploaded data
     """
     # Validate file type first (before try block)
-    if not file.filename.endswith(".csv"):
+    if not file.filename or not file.filename.endswith(".csv"):
         raise HTTPException(status_code=400, detail="File must be a CSV")
 
     try:
