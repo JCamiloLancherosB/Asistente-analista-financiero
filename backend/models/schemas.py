@@ -1,6 +1,7 @@
 """Data models for the financial assistant API."""
 
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -22,6 +23,8 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     """Response model for chat endpoint."""
+
+    model_config = {"protected_namespaces": ()}
 
     response: str = Field(..., description="Assistant response")
     tool_calls: Optional[List[Dict[str, Any]]] = Field(
@@ -51,15 +54,11 @@ class FinancialRatios(BaseModel):
     liquidez_corriente: Optional[float] = Field(
         None, description="Current ratio (activos corrientes / pasivos corrientes)"
     )
-    prueba_acida: Optional[float] = Field(
-        None, description="Quick ratio (acid test)"
-    )
+    prueba_acida: Optional[float] = Field(None, description="Quick ratio (acid test)")
     razon_endeudamiento: Optional[float] = Field(
         None, description="Debt ratio (pasivos totales / activos totales)"
     )
-    roe: Optional[float] = Field(
-        None, description="Return on equity (utilidad neta / patrimonio)"
-    )
+    roe: Optional[float] = Field(None, description="Return on equity (utilidad neta / patrimonio)")
     roa: Optional[float] = Field(
         None, description="Return on assets (utilidad neta / activos totales)"
     )

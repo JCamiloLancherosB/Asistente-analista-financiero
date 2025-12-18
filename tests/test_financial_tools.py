@@ -16,25 +16,21 @@ class TestLiquidityRatios:
     def test_current_ratio(self, financial_tools):
         """Test current ratio calculation."""
         ratios = financial_tools.calculate_liquidity_ratios(
-            activos_corrientes=150000,
-            pasivos_corrientes=100000
+            activos_corrientes=150000, pasivos_corrientes=100000
         )
         assert ratios["liquidez_corriente"] == 1.5
 
     def test_quick_ratio(self, financial_tools):
         """Test quick ratio calculation."""
         ratios = financial_tools.calculate_liquidity_ratios(
-            activos_corrientes=150000,
-            pasivos_corrientes=100000,
-            inventarios=30000
+            activos_corrientes=150000, pasivos_corrientes=100000, inventarios=30000
         )
         assert ratios["prueba_acida"] == 1.2
 
     def test_zero_liabilities(self, financial_tools):
         """Test with zero liabilities."""
         ratios = financial_tools.calculate_liquidity_ratios(
-            activos_corrientes=150000,
-            pasivos_corrientes=0
+            activos_corrientes=150000, pasivos_corrientes=0
         )
         assert ratios["liquidez_corriente"] is None
 
@@ -45,18 +41,14 @@ class TestLeverageRatios:
     def test_debt_ratio(self, financial_tools):
         """Test debt ratio calculation."""
         ratios = financial_tools.calculate_leverage_ratios(
-            pasivos_totales=500000,
-            activos_totales=1000000,
-            patrimonio=500000
+            pasivos_totales=500000, activos_totales=1000000, patrimonio=500000
         )
         assert ratios["razon_endeudamiento"] == 0.5
 
     def test_debt_to_equity(self, financial_tools):
         """Test debt to equity ratio."""
         ratios = financial_tools.calculate_leverage_ratios(
-            pasivos_totales=400000,
-            activos_totales=1000000,
-            patrimonio=600000
+            pasivos_totales=400000, activos_totales=1000000, patrimonio=600000
         )
         assert abs(ratios["deuda_patrimonio"] - 0.6667) < 0.001
 
@@ -67,30 +59,21 @@ class TestProfitabilityRatios:
     def test_net_margin(self, financial_tools):
         """Test net profit margin calculation."""
         ratios = financial_tools.calculate_profitability_ratios(
-            utilidad_neta=50000,
-            ingresos=500000,
-            activos_totales=1000000,
-            patrimonio=600000
+            utilidad_neta=50000, ingresos=500000, activos_totales=1000000, patrimonio=600000
         )
         assert ratios["margen_neto"] == 10.0
 
     def test_roa(self, financial_tools):
         """Test return on assets calculation."""
         ratios = financial_tools.calculate_profitability_ratios(
-            utilidad_neta=100000,
-            ingresos=500000,
-            activos_totales=1000000,
-            patrimonio=600000
+            utilidad_neta=100000, ingresos=500000, activos_totales=1000000, patrimonio=600000
         )
         assert ratios["roa"] == 10.0
 
     def test_roe(self, financial_tools):
         """Test return on equity calculation."""
         ratios = financial_tools.calculate_profitability_ratios(
-            utilidad_neta=120000,
-            ingresos=500000,
-            activos_totales=1000000,
-            patrimonio=600000
+            utilidad_neta=120000, ingresos=500000, activos_totales=1000000, patrimonio=600000
         )
         assert ratios["roe"] == 20.0
 
@@ -101,15 +84,12 @@ class TestDCFProjection:
     def test_simple_dcf(self, financial_tools):
         """Test simple DCF calculation."""
         result = financial_tools.simple_dcf_projection(
-            flujo_caja_actual=100000,
-            tasa_crecimiento=5,
-            tasa_descuento=10,
-            periodos=3
+            flujo_caja_actual=100000, tasa_crecimiento=5, tasa_descuento=10, periodos=3
         )
         assert "proyecciones" in result
         assert len(result["proyecciones"]) == 3
-        assert "vp_total" in result
-        assert result["vp_total"] > 0
+        assert "vp_flujos" in result
+        assert result["vp_flujos"] > 0
 
 
 class TestRiskAlerts:

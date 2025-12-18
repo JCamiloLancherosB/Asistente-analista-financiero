@@ -1,8 +1,8 @@
 """Financial analysis tools for the AI assistant."""
 
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
+
 import pandas as pd
-from backend.models.schemas import FinancialRatios, RiskAlert
 
 
 class FinancialTools:
@@ -31,7 +31,7 @@ class FinancialTools:
         self,
         activos_corrientes: float,
         pasivos_corrientes: float,
-        inventarios: Optional[float] = None
+        inventarios: Optional[float] = None,
     ) -> Dict[str, float]:
         """
         Calculate liquidity ratios.
@@ -61,10 +61,7 @@ class FinancialTools:
         return ratios
 
     def calculate_leverage_ratios(
-        self,
-        pasivos_totales: float,
-        activos_totales: float,
-        patrimonio: float
+        self, pasivos_totales: float, activos_totales: float, patrimonio: float
     ) -> Dict[str, float]:
         """
         Calculate leverage/debt ratios.
@@ -94,11 +91,7 @@ class FinancialTools:
         return ratios
 
     def calculate_profitability_ratios(
-        self,
-        utilidad_neta: float,
-        ingresos: float,
-        activos_totales: float,
-        patrimonio: float
+        self, utilidad_neta: float, ingresos: float, activos_totales: float, patrimonio: float
     ) -> Dict[str, float]:
         """
         Calculate profitability ratios.
@@ -166,7 +159,7 @@ class FinancialTools:
                 "std": float(values.std()),
                 "min": float(values.min()),
                 "max": float(values.max()),
-                "growth_rate": None
+                "growth_rate": None,
             }
 
             # Calculate simple growth rate if data is sequential
@@ -187,7 +180,7 @@ class FinancialTools:
         flujo_caja_actual: float,
         tasa_crecimiento: float,
         tasa_descuento: float,
-        periodos: int = 5
+        periodos: int = 5,
     ) -> Dict[str, Any]:
         """
         Simple DCF (Discounted Cash Flow) projection.
@@ -211,11 +204,9 @@ class FinancialTools:
             flujo = flujo_caja_actual * ((1 + g) ** i)
             vp = flujo / ((1 + r) ** i)
             vp_total += vp
-            proyecciones.append({
-                "periodo": i,
-                "flujo_proyectado": round(flujo, 2),
-                "valor_presente": round(vp, 2)
-            })
+            proyecciones.append(
+                {"periodo": i, "flujo_proyectado": round(flujo, 2), "valor_presente": round(vp, 2)}
+            )
 
         # Simple terminal value (perpetuity)
         if r > g:
@@ -231,7 +222,7 @@ class FinancialTools:
             "vp_terminal": round(vp_terminal, 2),
             "valor_total": round(vp_total + vp_terminal, 2),
             "tasa_crecimiento": tasa_crecimiento,
-            "tasa_descuento": tasa_descuento
+            "tasa_descuento": tasa_descuento,
         }
 
     def generate_risk_alerts(self, ratios: Dict[str, float]) -> List[Dict[str, str]]:
@@ -249,53 +240,65 @@ class FinancialTools:
         # Liquidity alerts
         if "liquidez_corriente" in ratios and ratios["liquidez_corriente"] is not None:
             if ratios["liquidez_corriente"] < 1.0:
-                alerts.append({
-                    "severity": "high",
-                    "category": "liquidez",
-                    "message": f"Razón corriente baja ({ratios['liquidez_corriente']:.2f}). La empresa puede tener dificultades para cumplir obligaciones de corto plazo.",
-                    "recommendation": "Evaluar opciones para mejorar liquidez: reducir gastos, acelerar cobranza, o conseguir financiamiento."
-                })
+                alerts.append(
+                    {
+                        "severity": "high",
+                        "category": "liquidez",
+                        "message": f"Razón corriente baja ({ratios['liquidez_corriente']:.2f}). La empresa puede tener dificultades para cumplir obligaciones de corto plazo.",
+                        "recommendation": "Evaluar opciones para mejorar liquidez: reducir gastos, acelerar cobranza, o conseguir financiamiento.",
+                    }
+                )
             elif ratios["liquidez_corriente"] < 1.5:
-                alerts.append({
-                    "severity": "medium",
-                    "category": "liquidez",
-                    "message": f"Razón corriente moderada ({ratios['liquidez_corriente']:.2f}). Monitorear de cerca.",
-                    "recommendation": "Mantener un colchón de liquidez adecuado."
-                })
+                alerts.append(
+                    {
+                        "severity": "medium",
+                        "category": "liquidez",
+                        "message": f"Razón corriente moderada ({ratios['liquidez_corriente']:.2f}). Monitorear de cerca.",
+                        "recommendation": "Mantener un colchón de liquidez adecuado.",
+                    }
+                )
 
         # Leverage alerts
         if "razon_endeudamiento" in ratios and ratios["razon_endeudamiento"] is not None:
             if ratios["razon_endeudamiento"] > 0.7:
-                alerts.append({
-                    "severity": "high",
-                    "category": "endeudamiento",
-                    "message": f"Nivel de endeudamiento alto ({ratios['razon_endeudamiento']:.2%}). La empresa está altamente apalancada.",
-                    "recommendation": "Considerar reducir deuda o aumentar capital propio."
-                })
+                alerts.append(
+                    {
+                        "severity": "high",
+                        "category": "endeudamiento",
+                        "message": f"Nivel de endeudamiento alto ({ratios['razon_endeudamiento']:.2%}). La empresa está altamente apalancada.",
+                        "recommendation": "Considerar reducir deuda o aumentar capital propio.",
+                    }
+                )
             elif ratios["razon_endeudamiento"] > 0.5:
-                alerts.append({
-                    "severity": "medium",
-                    "category": "endeudamiento",
-                    "message": f"Nivel de endeudamiento moderado-alto ({ratios['razon_endeudamiento']:.2%}).",
-                    "recommendation": "Monitorear capacidad de servicio de deuda."
-                })
+                alerts.append(
+                    {
+                        "severity": "medium",
+                        "category": "endeudamiento",
+                        "message": f"Nivel de endeudamiento moderado-alto ({ratios['razon_endeudamiento']:.2%}).",
+                        "recommendation": "Monitorear capacidad de servicio de deuda.",
+                    }
+                )
 
         # Profitability alerts
         if "margen_neto" in ratios and ratios["margen_neto"] is not None:
             if ratios["margen_neto"] < 0:
-                alerts.append({
-                    "severity": "critical",
-                    "category": "rentabilidad",
-                    "message": f"Margen neto negativo ({ratios['margen_neto']:.2f}%). La empresa está operando con pérdidas.",
-                    "recommendation": "Analizar estructura de costos y buscar eficiencias operativas urgentemente."
-                })
+                alerts.append(
+                    {
+                        "severity": "critical",
+                        "category": "rentabilidad",
+                        "message": f"Margen neto negativo ({ratios['margen_neto']:.2f}%). La empresa está operando con pérdidas.",
+                        "recommendation": "Analizar estructura de costos y buscar eficiencias operativas urgentemente.",
+                    }
+                )
             elif ratios["margen_neto"] < 5:
-                alerts.append({
-                    "severity": "medium",
-                    "category": "rentabilidad",
-                    "message": f"Margen neto bajo ({ratios['margen_neto']:.2f}%). Rentabilidad limitada.",
-                    "recommendation": "Buscar oportunidades para mejorar márgenes o reducir costos."
-                })
+                alerts.append(
+                    {
+                        "severity": "medium",
+                        "category": "rentabilidad",
+                        "message": f"Margen neto bajo ({ratios['margen_neto']:.2f}%). Rentabilidad limitada.",
+                        "recommendation": "Buscar oportunidades para mejorar márgenes o reducir costos.",
+                    }
+                )
 
         return alerts
 

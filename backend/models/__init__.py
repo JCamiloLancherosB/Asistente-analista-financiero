@@ -1,13 +1,13 @@
 """Models package."""
 
 from backend.models.schemas import (
-    Message,
     ChatRequest,
     ChatResponse,
     FinancialData,
-    UploadResponse,
     FinancialRatios,
+    Message,
     RiskAlert,
+    UploadResponse,
 )
 
 __all__ = [

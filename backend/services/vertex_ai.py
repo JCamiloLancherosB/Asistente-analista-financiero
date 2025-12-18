@@ -1,16 +1,11 @@
 """Vertex AI service for Gemini model interaction."""
 
 import os
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
+
 import vertexai
-from vertexai.generative_models import (
-    GenerativeModel,
-    Content,
-    Part,
-    FunctionDeclaration,
-    Tool,
-    GenerationConfig,
-)
+from vertexai.preview import generative_models
+
 from backend.config import settings
 from backend.models.schemas import Message
 
@@ -31,10 +26,10 @@ class VertexAIService:
 
         # Initialize model
         self.model_name = settings.gemini_model
-        self.model = GenerativeModel(
+        self.model = generative_models.GenerativeModel(
             self.model_name,
             tools=[self.tools] if self.tools else None,
-            system_instruction=self._get_system_instruction()
+            system_instruction=self._get_system_instruction(),
         )
 
     def _get_system_instruction(self) -> str:
@@ -61,10 +56,10 @@ Cuando recibas datos financieros:
 Siempre explica tus cálculos y proporciona contexto sobre qué significan los ratios y por qué son importantes.
 Usa terminología financiera en español y sé preciso en tus análisis."""
 
-    def _create_tools(self) -> Optional[Tool]:
+    def _create_tools(self) -> Optional[generative_models.Tool]:
         """Create function declarations for financial tools."""
         # Tool for storing financial data
-        store_data_func = FunctionDeclaration(
+        store_data_func = generative_models.FunctionDeclaration(
             name="store_financial_data",
             description="Almacena datos financieros para análisis posterior. Usar cuando se recibe un CSV o datos tabulares.",
             parameters={
@@ -73,20 +68,20 @@ Usa terminología financiera en español y sé preciso en tus análisis."""
                     "data": {
                         "type": "array",
                         "description": "Lista de objetos con datos financieros",
-                        "items": {"type": "object"}
+                        "items": {"type": "object"},
                     },
                     "dataset_name": {
                         "type": "string",
                         "description": "Nombre para identificar este conjunto de datos",
-                        "default": "main"
-                    }
+                        "default": "main",
+                    },
                 },
-                "required": ["data"]
-            }
+                "required": ["data"],
+            },
         )
 
         # Tool for liquidity ratios
-        liquidity_func = FunctionDeclaration(
+        liquidity_func = generative_models.FunctionDeclaration(
             name="calculate_liquidity_ratios",
             description="Calcula ratios de liquidez (razón corriente y prueba ácida)",
             parameters={
@@ -94,47 +89,41 @@ Usa terminología financiera en español y sé preciso en tus análisis."""
                 "properties": {
                     "activos_corrientes": {
                         "type": "number",
-                        "description": "Activos corrientes o circulantes"
+                        "description": "Activos corrientes o circulantes",
                     },
                     "pasivos_corrientes": {
                         "type": "number",
-                        "description": "Pasivos corrientes o circulantes"
+                        "description": "Pasivos corrientes o circulantes",
                     },
                     "inventarios": {
                         "type": "number",
-                        "description": "Inventarios (opcional, para prueba ácida)"
-                    }
+                        "description": "Inventarios (opcional, para prueba ácida)",
+                    },
                 },
-                "required": ["activos_corrientes", "pasivos_corrientes"]
-            }
+                "required": ["activos_corrientes", "pasivos_corrientes"],
+            },
         )
 
         # Tool for leverage ratios
-        leverage_func = FunctionDeclaration(
+        leverage_func = generative_models.FunctionDeclaration(
             name="calculate_leverage_ratios",
             description="Calcula ratios de endeudamiento (razón de endeudamiento y deuda/patrimonio)",
             parameters={
                 "type": "object",
                 "properties": {
-                    "pasivos_totales": {
-                        "type": "number",
-                        "description": "Pasivos totales"
-                    },
-                    "activos_totales": {
-                        "type": "number",
-                        "description": "Activos totales"
-                    },
+                    "pasivos_totales": {"type": "number", "description": "Pasivos totales"},
+                    "activos_totales": {"type": "number", "description": "Activos totales"},
                     "patrimonio": {
                         "type": "number",
-                        "description": "Patrimonio o capital contable"
-                    }
+                        "description": "Patrimonio o capital contable",
+                    },
                 },
-                "required": ["pasivos_totales", "activos_totales", "patrimonio"]
-            }
+                "required": ["pasivos_totales", "activos_totales", "patrimonio"],
+            },
         )
 
         # Tool for profitability ratios
-        profitability_func = FunctionDeclaration(
+        profitability_func = generative_models.FunctionDeclaration(
             name="calculate_profitability_ratios",
             description="Calcula ratios de rentabilidad (ROE, ROA, margen neto)",
             parameters={
@@ -142,27 +131,21 @@ Usa terminología financiera en español y sé preciso en tus análisis."""
                 "properties": {
                     "utilidad_neta": {
                         "type": "number",
-                        "description": "Utilidad neta o ganancia neta"
+                        "description": "Utilidad neta o ganancia neta",
                     },
-                    "ingresos": {
-                        "type": "number",
-                        "description": "Ingresos totales o ventas"
-                    },
-                    "activos_totales": {
-                        "type": "number",
-                        "description": "Activos totales"
-                    },
+                    "ingresos": {"type": "number", "description": "Ingresos totales o ventas"},
+                    "activos_totales": {"type": "number", "description": "Activos totales"},
                     "patrimonio": {
                         "type": "number",
-                        "description": "Patrimonio o capital contable"
-                    }
+                        "description": "Patrimonio o capital contable",
+                    },
                 },
-                "required": ["utilidad_neta", "ingresos", "activos_totales", "patrimonio"]
-            }
+                "required": ["utilidad_neta", "ingresos", "activos_totales", "patrimonio"],
+            },
         )
 
         # Tool for trend analysis
-        trend_func = FunctionDeclaration(
+        trend_func = generative_models.FunctionDeclaration(
             name="analyze_trend",
             description="Analiza tendencias en datos financieros almacenados",
             parameters={
@@ -171,20 +154,20 @@ Usa terminología financiera en español y sé preciso en tus análisis."""
                     "dataset_name": {
                         "type": "string",
                         "description": "Nombre del conjunto de datos",
-                        "default": "main"
+                        "default": "main",
                     },
                     "column": {
                         "type": "string",
                         "description": "Nombre de la columna a analizar (ej: ingresos, utilidad_neta)",
-                        "default": "ingresos"
-                    }
+                        "default": "ingresos",
+                    },
                 },
-                "required": []
-            }
+                "required": [],
+            },
         )
 
         # Tool for DCF projection
-        dcf_func = FunctionDeclaration(
+        dcf_func = generative_models.FunctionDeclaration(
             name="simple_dcf_projection",
             description="Realiza una proyección simple de flujo de caja descontado (DCF)",
             parameters={
@@ -192,28 +175,28 @@ Usa terminología financiera en español y sé preciso en tus análisis."""
                 "properties": {
                     "flujo_caja_actual": {
                         "type": "number",
-                        "description": "Flujo de caja actual o del último periodo"
+                        "description": "Flujo de caja actual o del último periodo",
                     },
                     "tasa_crecimiento": {
                         "type": "number",
-                        "description": "Tasa de crecimiento esperada (porcentaje, ej: 5 para 5%)"
+                        "description": "Tasa de crecimiento esperada (porcentaje, ej: 5 para 5%)",
                     },
                     "tasa_descuento": {
                         "type": "number",
-                        "description": "Tasa de descuento o costo de capital (porcentaje, ej: 10 para 10%)"
+                        "description": "Tasa de descuento o costo de capital (porcentaje, ej: 10 para 10%)",
                     },
                     "periodos": {
                         "type": "integer",
                         "description": "Número de periodos a proyectar",
-                        "default": 5
-                    }
+                        "default": 5,
+                    },
                 },
-                "required": ["flujo_caja_actual", "tasa_crecimiento", "tasa_descuento"]
-            }
+                "required": ["flujo_caja_actual", "tasa_crecimiento", "tasa_descuento"],
+            },
         )
 
         # Tool for risk alerts
-        risk_func = FunctionDeclaration(
+        risk_func = generative_models.FunctionDeclaration(
             name="generate_risk_alerts",
             description="Genera alertas de riesgo basadas en ratios financieros",
             parameters={
@@ -221,15 +204,15 @@ Usa terminología financiera en español y sé preciso en tus análisis."""
                 "properties": {
                     "ratios": {
                         "type": "object",
-                        "description": "Diccionario con ratios calculados (liquidez_corriente, razon_endeudamiento, margen_neto, etc.)"
+                        "description": "Diccionario con ratios calculados (liquidez_corriente, razon_endeudamiento, margen_neto, etc.)",
                     }
                 },
-                "required": ["ratios"]
-            }
+                "required": ["ratios"],
+            },
         )
 
         # Combine all tools
-        return Tool(
+        return generative_models.Tool(
             function_declarations=[
                 store_data_func,
                 liquidity_func,
@@ -241,15 +224,25 @@ Usa terminología financiera en español y sé preciso en tus análisis."""
             ]
         )
 
-    def _convert_messages_to_contents(self, messages: List[Message]) -> List[Content]:
+    def _convert_messages_to_contents(
+        self, messages: List[Message]
+    ) -> List[generative_models.Content]:
         """Convert API messages to Vertex AI Content format."""
         contents = []
         for msg in messages:
             if msg.role == "user":
-                contents.append(Content(role="user", parts=[Part.from_text(msg.content)]))
+                contents.append(
+                    generative_models.Content(
+                        role="user", parts=[generative_models.Part.from_text(msg.content)]
+                    )
+                )
             elif msg.role == "assistant":
                 # Skip system messages, they're handled separately
-                contents.append(Content(role="model", parts=[Part.from_text(msg.content)]))
+                contents.append(
+                    generative_models.Content(
+                        role="model", parts=[generative_models.Part.from_text(msg.content)]
+                    )
+                )
         return contents
 
     async def generate_response(
@@ -273,7 +266,7 @@ Usa terminología financiera en español y sé preciso en tus análisis."""
         contents = self._convert_messages_to_contents(messages)
 
         # Configure generation
-        generation_config = GenerationConfig(
+        generation_config = generative_models.GenerationConfig(
             temperature=temperature or settings.default_temperature,
             max_output_tokens=max_tokens or settings.max_output_tokens,
         )
@@ -298,17 +291,24 @@ Usa terminología financiera en español y sé preciso en tus análisis."""
                 for part in candidate.content.parts:
                     if hasattr(part, "function_call") and part.function_call:
                         fc = part.function_call
-                        tool_calls.append({
-                            "name": fc.name,
-                            "arguments": dict(fc.args) if fc.args else {}
-                        })
+                        tool_calls.append(
+                            {"name": fc.name, "arguments": dict(fc.args) if fc.args else {}}
+                        )
 
         return {
             "response": response_text,
             "tool_calls": tool_calls if tool_calls else None,
-            "model_used": self.model_name
+            "model_used": self.model_name,
         }
 
 
-# Global service instance
-vertex_service = VertexAIService()
+# Create service lazily
+_vertex_service = None
+
+
+def get_vertex_service() -> VertexAIService:
+    """Get or create the Vertex AI service instance."""
+    global _vertex_service
+    if _vertex_service is None:
+        _vertex_service = VertexAIService()
+    return _vertex_service

@@ -36,11 +36,7 @@ class TestChatEndpoint:
         """Test chat endpoint accepts proper request structure."""
         # This is a minimal test since we can't actually call Vertex AI in tests
         # without credentials. A full integration test would require mocking.
-        request_data = {
-            "messages": [
-                {"role": "user", "content": "Hola"}
-            ]
-        }
+        request_data = {"messages": [{"role": "user", "content": "Hola"}]}
         # We expect this to fail without credentials, but it validates the structure
         response = client.post("/api/chat", json=request_data)
         # Should return 500 due to missing credentials, not 422 (validation error)
