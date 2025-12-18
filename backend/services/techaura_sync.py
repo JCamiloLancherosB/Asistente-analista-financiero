@@ -135,6 +135,10 @@ class TechauraClient:
         days_diff = (fecha_fin - fecha_inicio).days
         records_to_generate = min(limit, max(1, days_diff))
 
+        # Prevent division by zero
+        if records_to_generate == 0:
+            return mock_sales
+
         for i in range(records_to_generate):
             date = fecha_inicio + timedelta(days=i * (days_diff / records_to_generate))
             sale = {

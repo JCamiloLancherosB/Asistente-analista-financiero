@@ -48,4 +48,6 @@ class Settings(BaseSettings):
 
 
 # Global settings instance
+# Note: Pydantic Settings loads values from environment at runtime,
+# so mypy can't verify the required arguments at type-check time
 settings = Settings()  # type: ignore[call-arg]

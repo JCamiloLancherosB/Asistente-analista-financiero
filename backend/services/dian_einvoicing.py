@@ -228,8 +228,9 @@ class DIANEInvoicingService:
         filename = f"{numero_factura}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         filepath = os.path.join(self.storage_dir, filename)
 
-        # Stub: Just create a placeholder file
-        with open(filepath, "w") as f:
+        # Stub: Create a placeholder text file (for real PDF use a library like reportlab)
+        # In production, this would generate a proper PDF invoice
+        with open(filepath, "w", encoding="utf-8") as f:
             f.write(f"PDF Invoice {numero_factura}\n")
             f.write(json.dumps(factura_data, indent=2, default=str))
 
@@ -395,12 +396,8 @@ class DIANEInvoicingService:
         """
         errores = []
 
-        # Validate NITs
-        try:
-            # NIT validation is done by Pydantic validators
-            pass
-        except ValueError as e:
-            errores.append(f"Error en NIT: {str(e)}")
+        # NIT validation is done by Pydantic validators at model creation time
+        # No need for additional validation here
 
         # Validate calculations
         calculated_subtotal = sum(item.subtotal for item in factura.items)
