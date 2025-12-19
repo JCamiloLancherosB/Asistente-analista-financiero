@@ -32,7 +32,7 @@ class FinancialTools:
         activos_corrientes: float,
         pasivos_corrientes: float,
         inventarios: Optional[float] = None,
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Optional[float]]:
         """
         Calculate liquidity ratios.
 
@@ -44,7 +44,7 @@ class FinancialTools:
         Returns:
             Dictionary with liquidity ratios
         """
-        ratios = {}
+        ratios: Dict[str, Optional[float]] = {}
 
         # Current ratio (razón corriente)
         if pasivos_corrientes > 0:
@@ -62,7 +62,7 @@ class FinancialTools:
 
     def calculate_leverage_ratios(
         self, pasivos_totales: float, activos_totales: float, patrimonio: float
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Optional[float]]:
         """
         Calculate leverage/debt ratios.
 
@@ -74,7 +74,7 @@ class FinancialTools:
         Returns:
             Dictionary with leverage ratios
         """
-        ratios = {}
+        ratios: Dict[str, Optional[float]] = {}
 
         # Debt ratio (razón de endeudamiento)
         if activos_totales > 0:
@@ -92,7 +92,7 @@ class FinancialTools:
 
     def calculate_profitability_ratios(
         self, utilidad_neta: float, ingresos: float, activos_totales: float, patrimonio: float
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Optional[float]]:
         """
         Calculate profitability ratios.
 
@@ -105,7 +105,7 @@ class FinancialTools:
         Returns:
             Dictionary with profitability ratios
         """
-        ratios = {}
+        ratios: Dict[str, Optional[float]] = {}
 
         # Net profit margin (margen de utilidad neta)
         if ingresos > 0:
@@ -198,7 +198,7 @@ class FinancialTools:
         r = tasa_descuento / 100
 
         proyecciones = []
-        vp_total = 0
+        vp_total = 0.0
 
         for i in range(1, periodos + 1):
             flujo = flujo_caja_actual * ((1 + g) ** i)
