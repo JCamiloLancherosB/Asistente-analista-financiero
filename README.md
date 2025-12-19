@@ -28,19 +28,19 @@ AI-powered financial analysis assistant using Google Vertex AI Gemini and modern
 │  └──────────┬───────────┘  │   - Risk Alerts               │  │
 │             │              └───────────────────────────────┘  │
 │             │                                                   │
-│  ┌──────────▼───────────┐  ┌───────────────────────────────┐  │
-│  │  DIAN E-Invoicing    │  │   Techaura Sales Sync         │  │
-│  │  - Invoice Emission  │  │   - Sales Retrieval           │  │
-│  │  - Credit Notes      │  │   - Data Transformation       │  │
-│  │  - Status Query      │  │   - Financial Integration     │  │
-│  │  - XML/PDF Gen       │  │   - Mock Data (Stub)          │  │
-│  └──────────┬───────────┘  └───────────┬───────────────────┘  │
-└─────────────┼──────────────────────────┼───────────────────────┘
-              │                          │
-    ┌─────────▼───────────┐   ┌──────────▼──────────┐
-    │ DIAN API / PAC      │   │ Techaura API        │
-    │ Provider            │   │ (External System)   │
-    └─────────────────────┘   └─────────────────────┘
+│  ┌──────────▼───────────────────────────────────────────────┐  │
+│  │            Techaura Sales Sync                           │  │
+│  │            - Sales Retrieval                             │  │
+│  │            - Data Transformation                         │  │
+│  │            - Financial Integration                       │  │
+│  │            - Mock Data (Stub)                            │  │
+│  └──────────┬───────────────────────────────────────────────┘  │
+└─────────────┼───────────────────────────────────────────────────┘
+              │
+   ┌──────────▼──────────┐
+   │ Techaura API        │
+   │ (External System)   │
+   └──────────┬──────────┘
               │
 ┌─────────────▼───────────────────────────────────────────────────┐
 │              Google Cloud Vertex AI                              │
@@ -59,7 +59,6 @@ AI-powered financial analysis assistant using Google Vertex AI Gemini and modern
 - **Risk Detection**: Automated alerts for financial risks
 - **CSV Upload**: Easy data ingestion from CSV files
 - **Conversational Interface**: Natural language interaction with chat history
-- **🇨🇴 DIAN E-Invoicing**: Colombian electronic invoicing (factura electrónica) with stub integration
 - **📊 Sales Sync**: Integration with Techaura sales system (stub implementation ready for production)
 
 ### Technical Features
@@ -67,9 +66,8 @@ AI-powered financial analysis assistant using Google Vertex AI Gemini and modern
 - **Configurable Models**: Switch between Gemini Pro and Flash models
 - **Temperature Control**: Adjust response creativity
 - **Type-Safe**: Full type hints and validation with Pydantic
-- **Tested**: Comprehensive test suite with pytest (39 tests)
+- **Tested**: Comprehensive test suite with pytest
 - **Linted**: Code quality with ruff and black
-- **E-Invoice Flow**: Complete DIAN integration with CUFE generation, XML/PDF storage, and validation
 
 ## 📋 Prerequisites
 
@@ -270,222 +268,6 @@ periodo,ingresos,utilidad_neta,activos_totales,pasivos_totales,patrimonio
 2023,1500000,200000,3000000,1000000,2000000
 ```
 
-## 🇨🇴 DIAN Colombia E-Invoicing Integration
-
-The system includes a complete framework for Colombian electronic invoicing (factura electrónica) compliance with DIAN regulations.
-
-### E-Invoicing Flow Overview
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ 1. Invoice Creation                                              │
-│    - Build FacturaElectronica with emisor, cliente, line items  │
-│    - Validate NIT formats, calculations, required fields         │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-┌────────────────────────────▼────────────────────────────────────┐
-│ 2. CUFE Generation                                               │
-│    - Generate Código Único de Factura Electrónica               │
-│    - SHA-384 hash of invoice components                         │
-│    - Ensures invoice uniqueness and integrity                   │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-┌────────────────────────────▼────────────────────────────────────┐
-│ 3. XML Generation                                                │
-│    - Create UBL 2.1 compliant XML                               │
-│    - Include all required DIAN fields                           │
-│    - Format according to Colombian regulations                  │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-┌────────────────────────────▼────────────────────────────────────┐
-│ 4. Digital Signature (Production)                               │
-│    - Sign XML with digital certificate (.p12)                   │
-│    - Timestamp signature                                        │
-│    - Validate certificate authority                             │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-┌────────────────────────────▼────────────────────────────────────┐
-│ 5. Transmission to DIAN                                         │
-│    - Option A: Direct DIAN API (requires certification)         │
-│    - Option B: PAC Provider (Proveedor Autorizado)              │
-│    - Receive acceptance/rejection response                      │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-┌────────────────────────────▼────────────────────────────────────┐
-│ 6. Storage & Distribution                                       │
-│    - Store XML and PDF locally or in cloud storage              │
-│    - Send to client via email                                   │
-│    - Update invoice status in system                            │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Configuration
-
-The system supports three provider modes configured via environment variables:
-
-1. **stub** (default): Testing mode with mock responses, no external API calls
-2. **dian_api**: Direct integration with DIAN API (requires certification and credentials)
-3. **pac_provider**: Integration via authorized PAC provider
-
-Required environment variables (add to `.env`):
-
-```bash
-# E-Invoicing Provider Configuration
-E_INVOICE_PROVIDER=stub                    # stub | dian_api | pac_provider
-E_INVOICE_API_KEY=your-provider-api-key   # API key for PAC provider
-E_INVOICE_API_URL=https://api.provider.com # Provider API URL
-E_INVOICE_CERT_PATH=/path/to/cert.p12     # Digital certificate path
-E_INVOICE_CERT_PASSWORD=cert-password      # Certificate password
-E_INVOICE_NIT_EMISOR=900123456-7          # Your company NIT
-E_INVOICE_STORAGE_DIR=/tmp/einvoices      # Storage for XML/PDF files
-```
-
-### Usage Examples
-
-#### Creating and Emitting an Invoice
-
-```python
-from backend.services.dian_einvoicing import get_dian_service
-from backend.models.dian_schemas import (
-    FacturaElectronica, EmisorInfo, ClienteInfo,
-    InvoiceLineItem, TaxDetail, EInvoiceRequest
-)
-
-# Initialize service
-dian_service = get_dian_service()
-
-# Create invoice
-factura = FacturaElectronica(
-    numero_factura="FE-001",
-    emisor=EmisorInfo(
-        nit="900123456-7",
-        razon_social="Mi Empresa SAS",
-        direccion="Calle 100 #20-30",
-        ciudad="Bogotá",
-        departamento="Cundinamarca"
-    ),
-    cliente=ClienteInfo(
-        nit="900654321-8",
-        razon_social="Cliente Ejemplo SAS",
-        direccion="Carrera 50 #30-40",
-        ciudad="Medellín",
-        departamento="Antioquia",
-        email="cliente@example.com"
-    ),
-    items=[
-        InvoiceLineItem(
-            line_number=1,
-            description="Servicio de consultoría",
-            quantity=1,
-            unit_price=1000000,
-            subtotal=1000000,
-            taxes=[TaxDetail(tax_type="IVA", rate=19, amount=190000)],
-            total=1190000
-        )
-    ],
-    subtotal=1000000,
-    total_impuestos=190000,
-    total=1190000
-)
-
-# Emit invoice
-request = EInvoiceRequest(factura=factura, generar_pdf=True)
-response = dian_service.emitir_factura(request)
-
-print(f"CUFE: {response.cufe}")
-print(f"Status: {response.estado}")
-print(f"XML: {response.xml_path}")
-```
-
-#### Issuing a Credit Note
-
-```python
-from backend.models.dian_schemas import NotaCredito
-
-nota = NotaCredito(
-    numero_nota="NC-001",
-    factura_afectada="FE-001",
-    cufe_factura="original-invoice-cufe",
-    emisor=emisor_info,
-    cliente=cliente_info,
-    motivo="Devolución de mercancía",
-    concepto_correccion="Devolucion",
-    subtotal=100000,
-    total_impuestos=19000,
-    total=119000
-)
-
-response = dian_service.emitir_nota_credito(nota)
-```
-
-#### Querying Invoice Status
-
-```python
-status = dian_service.consultar_estado("FE-001", "cufe-value")
-print(f"DIAN Status: {status.estado_dian}")
-```
-
-### Validation
-
-The system includes comprehensive validation:
-
-- **NIT Format**: Validates Colombian tax ID format (minimum 9 digits)
-- **Calculation Consistency**: Ensures subtotals, taxes, and totals match
-- **Required Fields**: Validates all mandatory DIAN fields
-- **Currency Codes**: Validates allowed currency codes (COP, USD, EUR)
-
-```python
-# Validate before submission
-validation = dian_service.validar_factura(factura)
-if not validation["valido"]:
-    print(f"Errors: {validation['errores']}")
-```
-
-### Integration with Real Providers
-
-To integrate with production DIAN or a PAC provider:
-
-1. **Obtain Credentials**:
-   - Register with DIAN or choose a PAC provider (e.g., Carvajal, Andes SCD, FacturaElectronica.com)
-   - Obtain API credentials and digital certificate
-   - Complete certification process if using direct DIAN integration
-
-2. **Update Configuration**:
-   ```bash
-   E_INVOICE_PROVIDER=pac_provider
-   E_INVOICE_API_KEY=your_real_api_key
-   E_INVOICE_API_URL=https://api.your-pac-provider.com
-   E_INVOICE_CERT_PATH=/secure/path/to/certificate.p12
-   E_INVOICE_CERT_PASSWORD=your_cert_password
-   ```
-
-3. **Implement Provider-Specific Logic**:
-   - Replace stub methods in `backend/services/dian_einvoicing.py`
-   - Implement `_make_request()` method for actual HTTP calls
-   - Add provider-specific XML formatting if required
-   - Implement proper certificate handling for signing
-
-4. **Testing**:
-   - Use provider's test/sandbox environment first
-   - Validate with sample invoices
-   - Get certification approval before production use
-
-### File Storage
-
-Generated XML and PDF files are stored in the directory specified by `E_INVOICE_STORAGE_DIR`. 
-
-For production, consider:
-- Using cloud storage (Google Cloud Storage, AWS S3)
-- Implementing backup strategies
-- Setting up retention policies according to DIAN regulations (5 years minimum)
-
-### Recommended PAC Providers for Colombia
-
-- **Carvajal Tecnología y Servicios**: https://www.carvajaltecnologiayservicios.com/
-- **Andes SCD**: https://www.andesscd.com.co/
-- **FacturaElectronica.com**: https://www.facturaelectronica.com/
-- **Serti**: https://www.serti.co/
-
 ## 📊 Techaura Sales Sync
 
 The system includes integration with Techaura sales system to automatically sync sales data for financial analysis.
@@ -591,12 +373,10 @@ The AI can call these Python functions automatically:
 │   │   └── settings.py              # Configuration & env validation
 │   ├── models/
 │   │   ├── __init__.py
-│   │   ├── schemas.py               # Pydantic models for API
-│   │   └── dian_schemas.py          # DIAN e-invoicing schemas
+│   │   └── schemas.py               # Pydantic models for API
 │   ├── services/
 │   │   ├── __init__.py
 │   │   ├── vertex_ai.py             # Vertex AI integration
-│   │   ├── dian_einvoicing.py       # DIAN e-invoicing service
 │   │   └── techaura_sync.py         # Techaura sales sync
 │   ├── tools/
 │   │   ├── __init__.py
@@ -623,7 +403,6 @@ The AI can call these Python functions automatically:
 │   ├── conftest.py
 │   ├── test_api.py
 │   ├── test_financial_tools.py
-│   ├── test_dian_einvoicing.py     # DIAN e-invoicing tests
 │   └── test_techaura_sync.py       # Techaura sync tests
 ├── .env.example
 ├── .gitignore

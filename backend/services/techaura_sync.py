@@ -131,7 +131,7 @@ class TechauraClient:
         Returns:
             List of mock sale records
         """
-        mock_sales = []
+        mock_sales: List[Dict[str, Any]] = []
         days_diff = (fecha_fin - fecha_inicio).days
         records_to_generate = min(limit, max(1, days_diff))
 
